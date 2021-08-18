@@ -5,7 +5,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import pages
 
-st.set_page_config(page_title='PMRR PV+BESS+DG Dashboard', page_icon = 'battery', initial_sidebar_state = 'collapsed')
+st.set_page_config(page_title='PMRR PV+BESS+DG Dashboard', page_icon = 'battery', initial_sidebar_state = 'expanded')
 hide_streamlit_style = """
 <style>
 
@@ -15,10 +15,9 @@ footer {visibility: hidden;}
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-st.title('PMRR Interactive Reporting Tool')
-data_file = st.file_uploader('To begin, please upload your data file:',type='h5')
+st.sidebar.title('PMRR Interactive Reporting Tool')
+data_file = st.sidebar.file_uploader('To begin, please upload your data file:',type='h5')
 if data_file is not None:
-    st.write(data_file.name)
-    pages.PVBESSDG(data_file.name)
+    pages.PVBESSDG(data_file)
     
 

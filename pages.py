@@ -28,6 +28,8 @@ def PVBESSDG(filename):
     savings = np.zeros(shape=len(g))
     savings_pct = np.zeros(shape=len(g))
 
+    # Constants
+    total_energy = 24*50*365.0
 
     for i in range(len(g)):
         thisfolder = str(start + (i*delta))
@@ -46,9 +48,6 @@ def PVBESSDG(filename):
         effective_cost[i] = f[financestring].attrs['effective_cost']
         savings[i] = f[financestring].attrs['savings']
         savings_pct[i]= f[financestring].attrs['savings_pct']
-
-
-
     def mainPlot():
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=installed_pv, y=available_solar, name="Available Solar"))
@@ -60,13 +59,10 @@ def PVBESSDG(filename):
         fig.update_layout(
         xaxis_title='Installed PV Capacity (kW)',
         yaxis_title= 'Power (kW)',
-        title = 'PV + BESS + DG Performance',
+        title = 'Chart 1. Configuration Performance',
         title_x = 0.5
         )
         return fig
-
-    st.plotly_chart(mainPlot())
-
     def pctPlot():
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=installed_pv, y=(available_solar/available_solar)*100, name="Available Solar"))
@@ -78,12 +74,11 @@ def PVBESSDG(filename):
         fig.update_layout(
         xaxis_title='Installed PV Capacity (kW)',
         yaxis_title= 'Percentage (%)',
-        title = 'Solar Energy Harvested',
+        title = 'Chart 2. Solar Energy Harvested',
         title_x = 0.5
         )
         return fig
-    st.plotly_chart(pctPlot())
-
+    
     def pctBarPlot():
         fig = go.Figure()
         fig.add_trace(go.Bar(x=installed_pv, y=(solar_to_load/available_solar)*100, name="Solar PV deployed to Load"))
@@ -93,13 +88,12 @@ def PVBESSDG(filename):
         fig.update_layout(
         xaxis_title='Installed PV Capacity (kW)',
         yaxis_title= 'Percentage (%)',
-        title = 'Solar Energy Harvested',
+        title = 'Chart 3. Solar Energy Harvested',
         title_x = 0.5,
         barmode='stack'
         )
         return fig
-    st.plotly_chart(pctBarPlot())
-
+    
     def plotPls(y_data,y_label,title_label):
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=installed_pv,y=y_data,mode='lines'))
@@ -111,8 +105,6 @@ def PVBESSDG(filename):
         )
         return fig
 
-    total_energy = 24*50*365.0
-
     def supplyPlot():
         fig = go.Figure()
         fig.add_trace(go.Bar(x=installed_pv, y=solar_to_load/total_energy, name="Solar PV"))
@@ -121,16 +113,12 @@ def PVBESSDG(filename):
         fig.update_layout(
             xaxis_title='Installed PV Capacity (kW)',
             yaxis_title= "% Share",
-            title = "Power supply by Source",
+            title = "Chart 4. Power supply by Source",
             title_x = 0.5,
             barmode='stack',
             height = 400,
         )
         return fig
-
-    st.plotly_chart(supplyPlot())
-    # st.plotly_chart(plotPls(available_solar,'Available Solar (kW)','Available Solar'))
-    # st.plotly_chart(plotPls(available_solar_for_BESS,'Available Solar for BESS (kW)','Available Solar for BESS'))
 
     def financePlots():
         fig = make_subplots(rows=5,cols=1,shared_xaxes=True, subplot_titles=("Total Annual Cost", "Energy Rate of CAPEX Recovery Period","Effective Cost","Savings","% Savings"))
@@ -147,10 +135,33 @@ def PVBESSDG(filename):
             yaxis3_title='Rate <br>(PhP/kWh)',
             yaxis4_title='Rate <br>(PhP/kWh)',
             yaxis5_title='Percentage<br>(%)',
+            title = 'Chart 5. Financial Data',
             title_x = 0.5,
             showlegend = False,
             height=700,
         )
         return fig
+    # Main Report body
 
-    st.plotly_chart(financePlots())
+    def reportBody():
+        st.title('Case Study for Microgrid using Solar PV, BESS and Diesel Generator')
+        st.header('Summary')
+        st.markdown('This study aims to explore the performance of a microgrid setup consisting of Solar PV Installation (SPV), Battery Energy Storage System (BESS) and Diesel Generator (DG) for a customer with fixed energy demand. The SPV capacity was varied from 100-300kWp while maintaining constant BESS capacity (238kWh/100kW) and DG Capacity (50kW/h).<br><br> It was observed that the best utilization of the added SPV and BESS was at an installed capacity of 200 kWp. This configuration offered a 50% reduction in the usage of DG while offering the lowest Total Annual Cost and highest Savings for the customer.',unsafe_allow_html=True)
+        # st.header('Simulation Parameters')
+        # col1, col2 = st.beta_columns(2)
+        # col1.subheader('Battery')
+        # col1.markdown('Capacity: 238kWh/100kW')
+        # col1.markdown('Round Trip Efficiency: 80%')
+        # col1.markdown('Trial')
+        # col2.subheader('Diesel Generator')
+        # col2.markdown('Trial')
+        # col2.markdown('Trial')
+        
+        st.header('Results')
+        st.plotly_chart(mainPlot())
+        st.plotly_chart(pctBarPlot())
+        st.plotly_chart(pctPlot())
+        st.plotly_chart(supplyPlot())
+        st.plotly_chart(financePlots())
+
+    reportBody()
